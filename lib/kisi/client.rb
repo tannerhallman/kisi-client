@@ -17,8 +17,8 @@ module Kisi
       #@debug = true # todo remove for production
       #set_debug_url
       @headers = {
-        :content_type => "application/json",
-        :accept => "application/json",
+        "Content-Type" => "application/json",
+        "Accept" => "application/json",
         "Authorization" => "KISI-LOGIN #{@token}",
       }
     end
@@ -53,41 +53,26 @@ module Kisi
     end
 
     def create_user(name:, email:, password:, options: {})
-      #   "name": "First Last",
-      # "email": "email@domain.com",
-      # "password": "test1234",
-      # "terms_and_conditions": true
-      # todo password must be 8 characters!
-      # new_options = options.merge!({
-      #   body: {
-      #     user: {
-      #       name: name,
-      #       email: email,
-      #       password: password,
-      #       terms_and_conditions: true,
-      #     },
-      #   }.to_json,
-      # })
-      # puts "OPTIONS!!!: " + options.to_s
-      # # self.class.post("/users/#{signup_token}/sign_up", add_headers(options)).parsed_response
-      # new_options = add_headers(new_options)
-      # puts "NEW OPTIONS!!" + new_options.to_s
-      # self.class.post("/users/sign_up", new_options).parsed_response
-
+  
+      uri = URI.parse("#{@base_uri}/users/sign_up")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      request = Net::HTTP::Post.new(uri.request_uri)
+​
+      request["Content-Type"] = "application/json"
+      request["Accept"] = "application/json"
+      request["Authorization"] = "KISI-LOGIN #{@token}"
+​
       body = {
-        user: {
-          email: email,
-          name: name,
-          password: password,
-          terms_and_conditions: true,
-        },
-      }.to_json
-
-      url = "#{@base_uri}/users/sign_up"
-      puts url
-      response = RestClient.post url, body, @headers
-      puts response
-      return response
+          user: {
+            :email => "vdbrown2@ncsu.edu",
+            :password  => "testing123",
+            :name => "DeShawn",
+            :terms_and_conditions => true
+      }
+    }
+    request.body = body.to_json
+    response = http.request(request)
     end
 
     def get_groups(options: {})
